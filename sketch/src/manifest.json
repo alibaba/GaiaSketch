@@ -1,0 +1,61 @@
+{
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "identifier": "GaiaSketchOpenSource",
+  "homepage": "https://www.yuque.com/youku-gaia/gaia-sketch",
+  "commands": [
+    {
+      "name": "打开Gaia Sketch",
+      "identifier": "open-panel-identifier",
+      "script": "./panel.js",
+      "shortcut": "command shift g",
+      "handler": "onOpenPanel"
+    },
+    {
+      "name": "导出代码",
+      "identifier": "export-code-identifier",
+      "script": "./action-center.js",
+      "shortcut": "command shift c",
+      "handler": "onExportCodeAction"
+    },
+    {
+      "name": "导出标注",
+      "identifier": "export-measure-identifier",
+      "script": "./action-center.js",
+      "shortcut": "command shift m",
+      "handler": "onExportMeasureAction"
+    },
+    {
+      "identifier": "action-center-identifier",
+      "script": "./action-center.js",
+      "handlers": {
+        "actions": {
+          "OpenDocument": "onOpenDocumentAction",
+          "Shutdown": "onShutdownAction",
+          "CloseDocument": "onCloseDocumentAction",
+          "SelectionChanged": "onSelectionChanged"
+        }
+      }
+    },
+    {
+      "name": "重置",
+      "identifier": "reset-identifier",
+      "script": "./action-center.js",
+      "shortcut": "command shift m",
+      "handler": "onResetAction"
+    }
+  ],
+  "menu": {
+    "title": "Gaia Sketch",
+    "items": [
+      "open-panel-identifier",
+      "-",
+      "export-code-identifier",
+      "-",
+      "export-measure-identifier",
+      "-",
+      "reset-identifier"
+    ]
+  }
+}

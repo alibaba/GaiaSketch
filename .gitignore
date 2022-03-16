@@ -1,0 +1,49 @@
+app/node_modules
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+app/.pnp
+app/.pnp.js
+
+# testing
+app/coverage
+
+# production
+app/build
+
+# misc
+app/.DS_Store
+app/.env.local
+app/.env.development.local
+app/.env.test.local
+app/.env.production.local
+
+app/npm-debug.log*
+app/yarn-debug.log*
+app/yarn-error.log*
+
+app/public/slices
+
+app/public/artboards
+
+
+# build artefacts
+sketch/gaia-sketch.sketchplugin
+
+# npm
+sketch/node_modules
+sketch/.npm
+sketch/npm-debug.log
+
+# mac
+sketch/.DS_Store
+
+sketch/assets/server.config.json
+
+sketch/assets/resources
+
+# sketch
+# sketch-assets
+
+.idea
+.vscode
