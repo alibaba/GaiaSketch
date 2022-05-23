@@ -16,7 +16,7 @@
   * [样式库](./docs/zh-CN/style.md)
   * [图标库](./docs/zh-CN/iconfont.md)
   * [页面库](./docs/zh-CN/page.md)
-  * [Deign Token库](./docs/zh-CN/design-token.md)
+  * [Design Token库](./docs/zh-CN/design-token.md)
 
   * 配置内部的标准库平台（基于 [Gitlab v3 API](https://gitlab.com/gitlab-org/gitlab-foss/-/tree/8-16-stable)）
 
