@@ -15,44 +15,44 @@
  */
 
 import dialog from "@skpm/dialog";
-import {updateLibrary} from "../server/upload";
+import { updateLibrary } from "../server/upload";
 
 export function registerUploadIPC(context, webContents) {
-  webContents.on("selectUploadLibrary", (fileType) => {
-    let filters = [];
-    if (fileType === "sketch") {
-      filters.push({ name: "Sketch", extensions: ["sketch"] });
-    } else if (fileType === "zip") {
-      filters.push({ name: "Iconfont", extensions: ["zip"] });
-    } else if (fileType === "xlsx") {
-      filters.push({ name: "Excel", extensions: ["xlsx"] });
-    }
-    dialog
-      .showOpenDialog({
-        filters,
-        title: "请选择要上传的文件",
-        properties: ["openFile", "openDirectory"],
-      })
-      .then(({ canceled, filePaths }) => {
-        if (!canceled && filePaths && filePaths.length > 0) {
-          let filePath = filePaths[0];
-          webContents.executeJavaScript(
-            `onDidSelectUploadLibrary(${JSON.stringify({ filePath })})`
-          );
+    webContents.on("selectUploadLibrary", (fileType) => {
+        let filters = [];
+        if (fileType === "sketch") {
+            filters.push({ name: "Sketch", extensions: ["sketch"] });
+        } else if (fileType === "zip") {
+            filters.push({ name: "Iconfont", extensions: ["zip"] });
+        } else if (fileType === "xlsx") {
+            filters.push({ name: "Excel", extensions: ["xlsx"] });
         }
-      });
-  });
-  webContents.on("upload", (info) => {
-    updateLibrary(info)
-      .then(() => {
-        webContents.executeJavaScript(
-          `onDidUpload(${JSON.stringify({ success: true })})`
-        );
-      })
-      .catch((error) => {
-        webContents.executeJavaScript(
-          `onDidUpload(${JSON.stringify({ errorMessage: "上传失败" })})`
-        );
-      });
-  });
+        dialog
+            .showOpenDialog({
+                filters,
+                title: "请选择要上传的文件",
+                properties: ["openFile", "openDirectory"]
+            })
+            .then(({ canceled, filePaths }) => {
+                if (!canceled && filePaths && filePaths.length > 0) {
+                    let filePath = filePaths[0];
+                    webContents.executeJavaScript(
+                        `onDidSelectUploadLibrary(${JSON.stringify({ filePath })})`
+                    );
+                }
+            });
+    });
+    webContents.on("upload", (info) => {
+        updateLibrary(info)
+            .then(() => {
+                webContents.executeJavaScript(
+                    `onDidUpload(${JSON.stringify({ success: true })})`
+                );
+            })
+            .catch((error) => {
+                webContents.executeJavaScript(
+                    `onDidUpload(${JSON.stringify({ errorMessage: "上传失败" })})`
+                );
+            });
+    });
 }

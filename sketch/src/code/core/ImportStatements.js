@@ -18,31 +18,31 @@
  * 包含头文件需要包含哪些组件
  */
 export default class ImportStatements {
-  // static instance: ImportStatements;
-  // importsArray: any;
+    // static instance: ImportStatements;
+    // importsArray: any;
 
-  constructor() {
-    this.importsArray = [];
-  }
-
-  static getInstance() {
-    if (false === this.instance instanceof this) {
-      this.instance = new this();
+    constructor() {
+        this.importsArray = [];
     }
-    return this.instance;
-  }
 
-  static appendComponents(component) {
-    ImportStatements.getInstance().importsArray.push(component);
-  }
+    static getInstance() {
+        if (false === this.instance instanceof this) {
+            this.instance = new this();
+        }
+        return this.instance;
+    }
 
-  static getImportsSatements() {
-    let instance = ImportStatements.getInstance();
-    let statement = [];
-    instance.importsArray.forEach((sm) => {
-      statement = statement.concat(sm.getImportStatement());
-    });
-    let uniqueStatement = Array.from(new Set(statement));
-    return uniqueStatement.join("\n");
-  }
+    static appendComponents(component) {
+        ImportStatements.getInstance().importsArray.push(component);
+    }
+
+    static getImportsSatements() {
+        let instance = ImportStatements.getInstance();
+        let statement = [];
+        instance.importsArray.forEach((sm) => {
+            statement = statement.concat(sm.getImportStatement());
+        });
+        let uniqueStatement = Array.from(new Set(statement));
+        return uniqueStatement.join("\n");
+    }
 }

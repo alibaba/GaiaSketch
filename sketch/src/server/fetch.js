@@ -17,58 +17,54 @@
 import * as fetch from "sketch-polyfill-fetch";
 import * as Console from "@skpm/console";
 import parseURL from "url-parse";
-import {getToken} from "../helper";
-import {getServerJSON} from "./server-helper";
-
-const console = Console();
-
+import { getToken } from "../helper";
+import { getServerJSON } from "./server-helper";
+import { logger } from "../logger";
 export function fetch2(api, user = true, config) {
-  return new Promise((resolve, reject) => {
-    let serverConfigJSON = getServerJSON();
-    if (serverConfigJSON) {
-      let apiUrl = parseURL(
-        `${serverConfigJSON["domain"]}/api/${serverConfigJSON["version"]}${api}`
-      );
-      let query = apiUrl.query;
-      if (!query) {
-        query = "";
-      }
-      if (user) {
-        let token = getToken();
-        if (token) {
-          query += `&private_token=${token}`;
+    return new Promise((resolve, reject) => {
+        let serverConfigJSON = getServerJSON();
+        if (serverConfigJSON) {
+            let apiUrl = parseURL(`${serverConfigJSON["domain"]}/api/${serverConfigJSON["version"]}${api}`);
+            let query = apiUrl.query;
+            if (!query) {
+                query = "";
+            }
+            if (user) {
+                let token = getToken();
+                if (token) {
+                    query += `&private_token=${token}`;
+                }
+            } else {
+                query += `&private_token=${serverConfigJSON["token"]}`;
+            }
+            apiUrl.set("query", query);
+            let apiConfig = config || {
+                method: "GET",
+            };
+            fetch(apiUrl.toString(), apiConfig)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((json) => {
+                    // logger.log(`url = ${apiUrl.toString()}`);
+                    // logger.log(json);
+                    // logger.log(apiConfig);
+                    // logger.log(
+                    //   "--------------------------------------------------------"
+                    // );
+                    resolve(json);
+                })
+                .catch((e) => {
+                    // logger.log(`url = ${apiUrl.toString()}`);
+                    // logger.log(apiConfig);
+                    // logger.log(e);
+                    // logger.log(
+                    //   "--------------------------------------------------------"
+                    // );
+                    reject(e);
+                });
+        } else {
+            reject(new Error("服务配置错误"));
         }
-      } else {
-        query += `&private_token=${serverConfigJSON["token"]}`;
-      }
-      apiUrl.set("query", query);
-      let apiConfig = config || {
-        method: "GET",
-      };
-      fetch(apiUrl.toString(), apiConfig)
-        .then((response) => {
-          return response.json();
-        })
-        .then((json) => {
-          // console.log(`url = ${apiUrl.toString()}`);
-          // console.log(json);
-          // console.log(apiConfig);
-          // console.log(
-          //   "--------------------------------------------------------"
-          // );
-          resolve(json);
-        })
-        .catch((e) => {
-          // console.log(`url = ${apiUrl.toString()}`);
-          // console.log(apiConfig);
-          // console.log(e);
-          // console.log(
-          //   "--------------------------------------------------------"
-          // );
-          reject(e);
-        });
-    } else {
-      reject(new Error("服务配置错误"));
-    }
-  });
+    });
 }

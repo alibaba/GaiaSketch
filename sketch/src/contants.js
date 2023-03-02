@@ -15,16 +15,16 @@
  */
 
 module.exports = {
-  Unknown: "Unknown",
-  Component: "components",
-  Iconfont: "iconfonts",
-  Style: "styles",
-  Page: "pages",
-  ServerConfigJSON: "server.config.json",
-  RelatedServerProject: "related-server-project",
-  Token: "tokens",
-  OwnedLibraries: "owned-libraries",
-  ExportMeasure: "ExportMeasure",
-  ExportCode: "ExportCode",
-  LocalIconfonts: "LocalIconfonts",
+    Unknown: "Unknown",
+    Component: "components",
+    Iconfont: "iconfonts",
+    Style: "styles",
+    Page: "pages",
+    ServerConfigJSON: "server.config.json",
+    RelatedServerProject: "related-server-project",
+    Token: "tokens",
+    OwnedLibraries: "owned-libraries",
+    ExportMeasure: "ExportMeasure",
+    ExportCode: "ExportCode",
+    LocalIconfonts: "LocalIconfonts"
 };

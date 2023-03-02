@@ -15,14 +15,15 @@
  */
 
 export enum BarType {
-  Unknown = "Unknown",
-  Component = "components",
-  Iconfont = "iconfonts",
-  Style = "styles",
-  Page = "pages",
-  ExportMeasure = "ExportMeasure",
-  ExportCode = "ExportCode",
-  Token = "tokens",
-  Upload = "upload",
-  Management = "management",
+    Unknown = "Unknown",
+    Component = "components",
+    Iconfont = "iconfonts",
+    Style = "styles",
+    Page = "pages",
+    ExportMeasure = "ExportMeasure",
+    ExportCode = "ExportCode",
+    Token = "tokens",
+    Upload = "upload",
+    Management = "management",
+    Other = "other",
 }

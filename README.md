@@ -4,11 +4,11 @@
 
 ## 介绍
 
-一款为开发和设计师而设计的一款基于Sketch的插件，对于设计师来说可以通过插件建立起标准库（包括：组件库、样式库、图标库、页面库、Deign Token库），也可以通过插件导出更为简单易用的【标注文件】；对于开发来说，可以通过插件能将Sketch设计稿中的图层导出为代码（GaiaX、React、Rax、Vue、小程序等）
+Gaia Sketch 一款为开发和设计师而设计的一款基于Sketch的插件，对于设计师来说可以通过Gaia Sketch建立起标准库（包括：组件库、样式库、图标库、页面库、Deign Token库），也可以通过Gaia Sketch插件导出更为简单易用的【标注文件】；对于开发来说，可以通过Gaia Sketch插件能将Sketch设计稿中的图层导出为代码（GaiaX、React、Rax、Vue、小程序等）
 
 [语雀知识库地址](https://www.yuque.com/youku-gaia/gaia-sketch)
 
-整体架构基于 [skpm/with-webview](https://github.com/skpm/with-webview)，界面基于 [FluentUI](https://github.com/microsoft/fluentui) 和 [Create React App](https://github.com/facebook/create-react-app)
+整体架构基于 [skpm/with-webview](https://github.com/skpm/with-webview)，界面基于 [FluentUI](https://github.com/microsoft/fluentui) 
 
 * 标准库
 
@@ -16,7 +16,7 @@
   * [样式库](./docs/zh-CN/style.md)
   * [图标库](./docs/zh-CN/iconfont.md)
   * [页面库](./docs/zh-CN/page.md)
-  * [Design Token库](./docs/zh-CN/design-token.md)
+  * [Deign Token库](./docs/zh-CN/design-token.md)
 
   * 配置内部的标准库平台（基于 [Gitlab v3 API](https://gitlab.com/gitlab-org/gitlab-foss/-/tree/8-16-stable)）
 
@@ -50,42 +50,23 @@ yarn
 yarn start
 ```
 
-### 修改入口
-
-将
-```js
-browserWindow.loadURL("./resources/index.html");
-```
-改为
-```js
-browserWindow.loadURL("http://localhost:3000");
-```
-
 ## 打包
 
-### 修改入口
-
-将
-```js
-browserWindow.loadURL("http://localhost:3000");
-```
-改为
-```js
-browserWindow.loadURL("./resources/index.html");
-```
-
-### 执行命令
-
 ```sh
-1. cd gaia-sketch
+cd gaia-sketch
 
-2. make
-
-3. open sketch/gaia-sketch.sketchplugin #安装
-
-4. restart sketch #重启Sketch软件
-
+make
 ```
+
+### 日志
+```js
+logger.log()
+logger.info()
+logger.warn()
+logger.error()
+// ~/Library/Logs/com.bohemiancoding.sketch3
+```
+
 
 # 行为准则
 

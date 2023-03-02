@@ -1,14 +1,10 @@
 {
   "name": "gaia-sketch",
-  "version": "0.1.0",
+  "version": "0.3.1",
   "engines": {
     "sketch": ">=3.0"
   },
   "description": "简单易用，高效协同设计和开发工具",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/alibaba/GaiaSketch.git"
-  },
   "skpm": {
     "name": "Gaia Sketch",
     "manifest": "src/manifest.json",
@@ -18,17 +14,19 @@
     ]
   },
   "scripts": {
-    "build": "skpm-build",
-    "watch": "skpm-build --watch",
-    "start": "skpm-build --watch",
+    "clean": "rm -rf node_modules yarn.lock",
+    "build": "BUILD_MODE=production skpm-build",
+    "watch": "BUILD_MODE=development skpm-build --watch",
     "postinstall": "npm run build && skpm-link"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.7.4",
+    "@skpm/builder": "^0.8.0",
     "@skpm/extract-loader": "^2.0.2",
     "css-loader": "^3.2.0",
+    "fs-extra": "^11.1.0",
     "html-loader": "^0.5.5",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "xml2js": "^0.4.23"
   },
   "resources": [
     "resources/**/*.js"
@@ -37,6 +35,7 @@
     "@skpm/child_process": "^0.4.2",
     "@skpm/console": "^0.2.8",
     "@skpm/dialog": "^0.4.2",
+    "@skpm/extract-loader": "^2.0.3",
     "@skpm/fs": "^0.2.6",
     "@skpm/os": "^0.1.1",
     "@skpm/path": "^0.1.4",
@@ -49,5 +48,9 @@
     "upper-case-first": "^2.0.2",
     "url-parse": "^1.5.3"
   },
-  "author": "ronghui1219 <ronghui.zrh@alibaba-inc.com>"
+  "author": "ronghui1219 <zrhzhouronghui@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alibaba/GaiaSketch.git"
+  }
 }

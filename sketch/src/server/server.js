@@ -15,45 +15,44 @@
  */
 
 import * as Console from "@skpm/console";
-import {getToken, setToken} from "../helper";
-import {isTokenValid} from "./user";
-import {getServerJSON, initServerJSON} from "./server-helper";
+import { getToken, setToken } from "../helper";
+import { isTokenValid } from "./user";
+import { getServerJSON, initServerJSON } from "./server-helper";
 
-const console = Console();
 
 export function registerServerIPC(context, webContents) {
-  initServerJSON(context);
-  let serverConfig = getServerJSON();
-  if (serverConfig) {
-    webContents.on("getServerDomain", () => {
-      webContents.executeJavaScript(
-        `onDidGetServerDomain(${JSON.stringify({
-          domain: serverConfig["domain"],
-        })})`
-      );
-    });
-    webContents.on("setUserPrivateToken", (token) => {
-      isTokenValid(token)
-        .then(() => {
-          webContents.executeJavaScript(
-            `onDidSetUserPrivateToken(${JSON.stringify({ success: true })})`
-          );
-        })
-        .catch((error) => {
-          webContents.executeJavaScript(
-            `onDidSetUserPrivateToken(${JSON.stringify({ success: false })})`
-          );
+    initServerJSON(context);
+    let serverConfig = getServerJSON();
+    if (serverConfig) {
+        webContents.on("getServerDomain", () => {
+            webContents.executeJavaScript(
+                `onDidGetServerDomain(${JSON.stringify({
+                    domain: serverConfig["domain"]
+                })})`
+            );
         });
-    });
-    webContents.on("getUserPrivateToken", () => {
-      let token = getToken();
-      webContents.executeJavaScript(
-        `onDidGetUserPrivateToken(${JSON.stringify({
-          isValid: !!token,
-        })})`
-      );
-    });
-  } else {
-    setToken(null);
-  }
+        webContents.on("setUserPrivateToken", (token) => {
+            isTokenValid(token)
+                .then(() => {
+                    webContents.executeJavaScript(
+                        `onDidSetUserPrivateToken(${JSON.stringify({ success: true })})`
+                    );
+                })
+                .catch((error) => {
+                    webContents.executeJavaScript(
+                        `onDidSetUserPrivateToken(${JSON.stringify({ success: false })})`
+                    );
+                });
+        });
+        webContents.on("getUserPrivateToken", () => {
+            let token = getToken();
+            webContents.executeJavaScript(
+                `onDidGetUserPrivateToken(${JSON.stringify({
+                    isValid: !!token
+                })})`
+            );
+        });
+    } else {
+        setToken(null);
+    }
 }

@@ -15,11 +15,13 @@
  */
 
 import GKImage from "./GKImage";
-
+import * as Settings from "sketch/settings";
+import { logger } from "../../logger";
 export default class GKBackgroundImage extends GKImage {
-  constructor(props) {
-    super(props);
-    this.type = "BackgroundImage";
-    this.style.type = this.type;
-  }
+    constructor(props) {
+        super(props);
+        this.type = "BackgroundImage";
+        this.style.type = this.type;
+        logger.log(`((((((${this.type})))))) layer.name = ${this.name},  styles = `, this.style);
+    }
 }

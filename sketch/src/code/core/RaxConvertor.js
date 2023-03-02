@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Convertor} from "./Convertor";
+import { Convertor } from "./Convertor";
 import ImportStatements from "./ImportStatements";
 
 /**
@@ -22,27 +22,27 @@ import ImportStatements from "./ImportStatements";
  * 暂时不做View层级的优化，这个一定要解决，否则View太冗余，会影响性能
  */
 export default class RaxConvertor extends Convertor {
-  generateViewTree() {
-    let tree = "import {createElement, render, Component} from 'rax';\n";
-    tree += "import './index.css';\n";
-    tree += ImportStatements.getImportsSatements();
-    tree += "\n\n";
-    tree += "class Example extends Component {\n";
-    tree += "render() {\n";
-    tree += "let {\n";
-    tree += this.artboards[0].generateAssignModuleInfo();
-    tree += "\n";
-    tree +=
-      "} = (this.props.data && this.props.data.moduleinfo) ? this.props.data.moduleinfo : {};\n";
-    tree += "return (\n";
-    if (this.artboards[0]) {
-      tree += this.artboards[0].generateViewTree();
+    generateViewTree() {
+        let tree = "import {createElement, render, Component} from 'rax';\n";
+        tree += "import './index.css';\n";
+        tree += ImportStatements.getImportsSatements();
+        tree += "\n\n";
+        tree += "class Example extends Component {\n";
+        tree += "render() {\n";
+        tree += "let {\n";
+        tree += this.artboards[0].generateAssignModuleInfo();
+        tree += "\n";
+        tree +=
+            "} = (this.props.data && this.props.data.moduleinfo) ? this.props.data.moduleinfo : {};\n";
+        tree += "return (\n";
+        if (this.artboards[0]) {
+            tree += this.artboards[0].generateViewTree();
+        }
+        tree += ");\n";
+        tree += "}\n";
+        tree += "}\n\n";
+        tree += "export default Example;\n";
+        tree += "// render(<Example />);\n";
+        return tree;
     }
-    tree += ");\n";
-    tree += "}\n";
-    tree += "}\n\n";
-    tree += "export default Example;\n";
-    tree += "// render(<Example />);\n";
-    return tree;
-  }
 }

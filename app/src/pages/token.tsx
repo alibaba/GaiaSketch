@@ -14,79 +14,80 @@
  * limitations under the License.
  */
 
-import {Link, PrimaryButton, Spinner, SpinnerSize, Stack, TextField,} from "@fluentui/react";
-import React, {useEffect, useState} from "react";
+import { Link, PrimaryButton, Spinner, SpinnerSize, Stack, TextField } from "@fluentui/react";
+import React, { useEffect, useState } from "react";
 import URLParse from "url-parse";
 
 declare var window: any;
 
-interface ITokenProps {}
+interface ITokenProps {
+}
 
 export function Token(props: ITokenProps) {
-  const [domain, setDomain] = useState(null);
-  const [settingToken, setSettingToken] = useState(false);
-  const [token, setToken] = useState<any>(null);
+    const [domain, setDomain] = useState(null);
+    const [settingToken, setSettingToken] = useState(false);
+    const [token, setToken] = useState<any>(null);
 
-  useEffect(() => {
-    window.onDidGetServerDomain = function (data: any) {
-      if (data && data.domain) {
-        let url: any = new URLParse(data.domain);
-        url.pathname = "/profile/account";
-        setDomain(url.toString());
-      }
-    };
-  });
+    useEffect(() => {
+        window.onDidGetServerDomain = function(data: any) {
+            if (data && data.domain) {
+                let url: any = new URLParse(data.domain);
+                url.pathname = "/profile/account";
+                setDomain(url.toString());
+            }
+        };
+    });
 
-  useEffect(() => {
-    window.postMessage("getServerDomain");
-  }, []);
+    useEffect(() => {
+        window.postMessage("getServerDomain");
+    }, []);
 
-  return (
-    <Stack
-      styles={{
-        root: {
-          width: "100%",
-          height: "100%",
-        },
-      }}
-      tokens={{ childrenGap: 12 }}
-      verticalAlign={"center"}
-      horizontalAlign={"center"}
-    >
-      <TextField
-        label={"请输入Private Token"}
-        onChange={(event, newValue) => {
-          setToken(newValue);
-        }}
-      />
-      <Link
-        underline
-        onClick={() => {
-          window.postMessage("openUrl", domain);
-        }}
-      >
-        点击此处前往拷贝Private Token
-      </Link>
-      <PrimaryButton
-        text={"点击授权"}
-        onClick={() => {
-          setSettingToken(true);
-          window.postMessage("setUserPrivateToken", token);
-        }}
-        disabled={!token || token.length <= 0}
-      >
-        {settingToken ? (
-          <Spinner
-            size={SpinnerSize.xSmall}
+    return (
+        <Stack
             styles={{
-              root: {
-                position: "absolute",
-                right: 5,
-              },
+                root: {
+                    width: "100%",
+                    height: "100%"
+                }
             }}
-          />
-        ) : null}
-      </PrimaryButton>
-    </Stack>
-  );
+            tokens={{ childrenGap: 12 }}
+            verticalAlign={"center"}
+            horizontalAlign={"center"}
+        >
+            <TextField
+                label={"请输入Private Token"}
+                onChange={(event, newValue) => {
+                    setToken(newValue);
+                }}
+            />
+            <Link
+                underline
+                onClick={() => {
+                    window.postMessage("openUrl", domain);
+                }}
+            >
+                点击此处前往拷贝Private Token
+            </Link>
+            <PrimaryButton
+                text={"点击授权"}
+                onClick={() => {
+                    setSettingToken(true);
+                    window.postMessage("setUserPrivateToken", token);
+                }}
+                disabled={!token || token.length <= 0}
+            >
+                {settingToken ? (
+                    <Spinner
+                        size={SpinnerSize.xSmall}
+                        styles={{
+                            root: {
+                                position: "absolute",
+                                right: 5
+                            }
+                        }}
+                    />
+                ) : null}
+            </PrimaryButton>
+        </Stack>
+    );
 }

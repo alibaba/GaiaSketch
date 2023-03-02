@@ -14,39 +14,40 @@
  * limitations under the License.
  */
 
-import {Image, ImageFit, Stack, Text} from "@fluentui/react";
+import { Image, ImageFit, Stack, Text } from "@fluentui/react";
 import React from "react";
 
-interface IDefaultProps {}
+interface IDefaultProps {
+}
 
 export function Default(props: IDefaultProps) {
-  return (
-    <Stack
-      styles={{
-        root: {
-          margin: 8,
-          padding: 5,
-          height: "100%",
-        },
-      }}
-      verticalAlign={"center"}
-      horizontalAlign={"center"}
-      tokens={{ childrenGap: 12 }}
-    >
-      <Image
-        draggable={false}
-        src={"./icon.png"}
-        imageFit={ImageFit.centerContain}
-        styles={{
-          root: {
-            height: 150,
-            width: 150,
-          },
-        }}
-      />
-      <Text styles={{ root: { fontSize: 30, fontWeight: 500 } }}>
-        Gaia Sketch
-      </Text>
-    </Stack>
-  );
+    return (
+        <Stack
+            styles={{
+                root: {
+                    margin: 8,
+                    padding: 5,
+                    height: "100%"
+                }
+            }}
+            verticalAlign={"center"}
+            horizontalAlign={"center"}
+            tokens={{ childrenGap: 12 }}
+        >
+            <Image
+                draggable={false}
+                src={"./icon.png"}
+                imageFit={ImageFit.centerContain}
+                styles={{
+                    root: {
+                        height: 150,
+                        width: 150
+                    }
+                }}
+            />
+            <Text styles={{ root: { fontSize: 30, fontWeight: 500 } }}>
+                Gaia Sketch
+            </Text>
+        </Stack>
+    );
 }

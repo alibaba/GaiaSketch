@@ -16,133 +16,98 @@
 
 import * as path from "@skpm/path";
 import * as fs from "@skpm/fs";
-import * as os from "@skpm/os";
-import * as md5 from "blueimp-md5";
 import * as cp from "@skpm/child_process";
 import * as sketch from "sketch/dom";
-import { getLatestBarType, setLatestBarType } from "./helper";
+import {getLatestBarType, setLatestBarType} from "./helper";
+import {logger} from "./logger";
 
 export function registerCommonIPC(context, webContents) {
-  webContents.on("openInFinder", (folderPath, filePath) => {
-    if (filePath) {
-      NSWorkspace.sharedWorkspace().activateFileViewerSelectingURLs([
-        NSURL.fileURLWithPath(path.join(folderPath, filePath)),
-      ]);
-    } else {
-      NSWorkspace.sharedWorkspace().activateFileViewerSelectingURLs([
-        NSURL.fileURLWithPath(folderPath),
-      ]);
-    }
-  });
-
-  webContents.on("openUrl", (url) => {
-    NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url));
-  });
-
-  webContents.on("openInGaiaStudio", (folderPath) => {
-    let componentPath = folderPath;
-    if (fs.existsSync(componentPath)) {
-      if (!componentPath.toLowerCase().endsWith("/gaiax")) {
-        let dirs = fs.readdirSync(componentPath);
-        for (let i = 0; i < dirs.length; i++) {
-          if (dirs[i].toLowerCase().endsWith("/gaiax")) {
-            componentPath = path.join(componentPath, dirs[i]);
-            break;
-          }
+    webContents.on("openInFinder", (folderPath, filePath) => {
+        if (filePath) {
+            NSWorkspace.sharedWorkspace().activateFileViewerSelectingURLs([
+                NSURL.fileURLWithPath(path.join(folderPath, filePath)),
+            ]);
+        } else {
+            NSWorkspace.sharedWorkspace().activateFileViewerSelectingURLs([NSURL.fileURLWithPath(folderPath)]);
         }
-      }
+    });
 
-      let targetPath = path.join(os.homedir(), ".gaiax-studio", "workspace");
-      if (!fs.existsSync(targetPath)) {
-        fs.mkdirSync(targetPath);
-      }
+    webContents.on("openUrl", (url) => {
+        NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url));
+    });
 
-      let templatePath = path.join(
-        targetPath,
-        md5(String(NSUUID.UUID().UUIDString()))
-      );
-      if (!fs.existsSync(templatePath)) {
-        fs.mkdirSync(templatePath);
-      }
-
-      cp.spawnSync("cp", ["-r", `${componentPath}/.`, templatePath], {
-        shell: "/bin/sh",
-      });
-      cp.spawnSync("open", ["-b", "com.youku.gaia.studio", templatePath], {
-        shell: "/bin/sh",
-      });
-    }
-  });
-
-  webContents.on("getPageOptions", (type = "Artboard") => {
-    const currentDocument = sketch.Document.getSelectedDocument();
-    let pages = currentDocument.pages;
-    let artboardsOptions = [];
-    for (let i = pages.length - 1; i >= 0; i--) {
-      let page = pages[i];
-      if (page && page.selected) {
-        if (type === "Artboard" && !page.isSymbolsPage()) {
-          generateArtboardOptions(page, artboardsOptions, type);
-        } else if (type === "SymbolMaster" && page.isSymbolsPage()) {
-          generateArtboardOptions(page, artboardsOptions, type);
+    webContents.on("openInGaiaStudio", (folderPath) => {
+        let componentPath = folderPath;
+        if (fs.existsSync(componentPath)) {
+            cp.spawnSync("open", ["-b", "com.youku.gaia.studio", `'${componentPath}'`], {
+                shell: "/bin/sh",
+            });
         }
-      }
-    }
-    for (let i = pages.length - 1; i >= 0; i--) {
-      let page = pages[i];
-      if (page && !page.selected) {
-        if (type === "Artboard" && !page.isSymbolsPage()) {
-          generateArtboardOptions(page, artboardsOptions, type);
-        } else if (type === "SymbolMaster" && page.isSymbolsPage()) {
-          generateArtboardOptions(page, artboardsOptions, type);
-        }
-      }
-    }
-    webContents.executeJavaScript(
-      `onDidGetPageOptions(${JSON.stringify({
-        options: artboardsOptions,
-      })})`
-    );
-  });
+    });
 
-  webContents.on("setLatestBarType", (barType) => {
-    setLatestBarType(barType);
-  });
-  webContents.on("getLatestBarType", () => {
-    let barType = getLatestBarType();
-    webContents.executeJavaScript(
-      `onDidGetLatestBarType(${JSON.stringify({
-        barType,
-      })})`
-    );
-  });
+    webContents.on("getPageOptions", (types = ["Artboard"]) => {
+        const currentDocument = sketch.Document.getSelectedDocument();
+        let pages = currentDocument.pages;
+        let artboardsOptions = [];
+        for (let i = pages.length - 1; i >= 0; i--) {
+            let page = pages[i];
+            if (page ) {
+                if (!page.isSymbolsPage()) {
+                    generateArtboardOptions(page, artboardsOptions, types);
+                }
+            }
+        }
+        webContents.executeJavaScript(
+            `onDidGetPageOptions(${JSON.stringify({
+                options: artboardsOptions,
+            })})`
+        );
+    });
+
+    webContents.on("setLatestBarType", (barType) => {
+        setLatestBarType(barType);
+    });
+    webContents.on("getLatestBarType", () => {
+        let barType = getLatestBarType();
+        webContents.executeJavaScript(
+            `onDidGetLatestBarType(${JSON.stringify({
+                barType,
+            })})`
+        );
+    });
 }
 
-function generateArtboardOptions(page, artboardsOptions, type) {
-  let length = page.layers.length;
-  let artboardsInPage = [];
-  for (let j = length - 1; j >= 0; j--) {
-    let layer = page.layers[j];
-    if (type === "Artboard" && layer.type === "Artboard") {
-      artboardsInPage.push({
-        id: String(layer.id),
-        name: String(layer.name),
-        selected: layer.selected,
-      });
-    } else if (type === "SymbolMaster" && layer.type === "SymbolMaster") {
-      artboardsInPage.push({
-        id: String(layer.id),
-        name: String(layer.name),
-        selected: layer.selected,
-      });
+function generateArtboardOptions(page, artboardsOptions, types) {
+    let length = page.layers.length;
+    let artboardsInPage = [];
+    for (let j = length - 1; j >= 0; j--) {
+        let layer = page.layers[j];
+        if (types.includes(layer.type)) {
+            artboardsInPage.push({
+                id: String(layer.id),
+                name: `🔴 ${layer.name}`,
+                selected: layer.selected,
+                type: layer.type,
+            });
+            for (let i = layer?.layers.length-1; i >= 0; i--) {
+                let sublayer = layer.layers[i];
+                if (types.includes(sublayer.type)) {
+                    artboardsInPage.push({
+                        id: String(sublayer.id),
+                        name: `🟣 ${sublayer.name}` ,
+                        selected: sublayer.selected,
+                        type: sublayer.type
+                    })
+                }
+            }
+        }
     }
-  }
-  if (artboardsInPage.length > 0) {
-    artboardsOptions.push({
-      artboards: artboardsInPage,
-      id: page.id,
-      name: String(page.name),
-      selected: 0,
-    });
-  }
+    if (artboardsInPage.length > 0) {
+        artboardsOptions.push({
+            artboards: artboardsInPage,
+            id: page.id,
+            name: String(page.name),
+            selected: 0,
+        });
+    }
 }

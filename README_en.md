@@ -1,13 +1,13 @@
-# Designer Plugin
+# Gaia Sketch
 
 ## Introduction
 
-sketch-based plug-in designed for developers and designers. For designers, standard libraries can be established through plugin (including: component library, style library, icon library, page library, Deign Token library ), you can also export a simpler and easier-to-use [markup file] through the plug-in; for development, you can use the Gplug-in to export the layers in the Sketch design draft as code (GaiaX, React, Rax, Vue , applet, etc.)
+Gaia Sketch is a Sketch-based plug-in designed for developers and designers. For designers, standard libraries can be established through Gaia Sketch (including: component library, style library, icon library, page library, Deign Token library ), you can also export a simpler and easier-to-use [markup file] through the Gaia Sketch plug-in; for development, you can use the Gaia Sketch plug-in to export the layers in the Sketch design draft as code (GaiaX, React, Rax, Vue , applet, etc.)
 
 [YuQue](https://www.yuque.com/youku-gaia/gaia-sketch)
 
 
-The overall architecture is based on [skpm/with-webview](https://github.com/skpm/with-webview), and the interface is built on [FluentUI](https://github.com/microsoft/fluentui) and [Create React App](https://github.com/facebook/create-react-app)
+The overall architecture is based on [skpm/with-webview](https://github.com/skpm/with-webview), and the interface is built on [FluentUI](https://github.com/microsoft/fluentui)
 
 * Standard library
 
@@ -49,40 +49,14 @@ yarn
 yarn start
 ````
 
-### Modify entry
-
-will
-````js
-browserWindow.loadURL("./resources/index.html");
-````
-change to
-````js
-browserWindow.loadURL("http://localhost:3000");
-````
-
-## Bale
-
-### Modify entry
-
-will
-````js
-browserWindow.loadURL("http://localhost:3000");
-````
-change to
-````js
-browserWindow.loadURL("./resources/index.html");
-````
+## Build
 
 ### Excuting an order
 
 ````sh
-1. cd gaia-sketch
+cd gaia-sketch
 
-2. make
-
-3. open sketch/gaia-sketch.sketchplugin #install
-
-4. restart sketch 
+make
 ````
 
 # Code of Conduct

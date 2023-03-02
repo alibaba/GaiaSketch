@@ -14,41 +14,49 @@
  * limitations under the License.
  */
 
-import {onCloseDocument, onOpenPanel, onShutdown} from "./panel";
-import {onLayerToCodeSelectionChanged} from "./layer-to-code";
-import {componentOnSelectionChanged} from "./libraries/component";
-import {pageOnSelectionChanged} from "./libraries/page";
-import {iconfontOnSelectionChanged} from "./libraries/iconfont";
-import {ExportCode, ExportMeasure} from "./contants";
-import {setToken} from "./helper";
+import { onCloseDocument, onManualOpenPanel, onOpenPanel, onShutdown } from "./panel";
+import { onLayerToCodeSelectionChanged } from "./layer-to-code";
+import { componentOnSelectionChanged } from "./libraries/component";
+import { pageOnSelectionChanged } from "./libraries/page";
+import { iconfontOnSelectionChanged } from "./libraries/iconfont";
+import { ExportCode, ExportMeasure } from "./contants";
+import {setLastSelectedLanguages, setLatestBarType, setToken} from "./helper";
+import * as Settings from "sketch/settings";
+import UI from "sketch/ui";
+
+export function onManualOpenAction(context) {
+    onManualOpenPanel(context);
+}
 
 export function onOpenDocumentAction(context) {
-  onOpenPanel(context);
+    onOpenPanel(context);
 }
 
 export function onShutdownAction(context) {
-  onShutdown(context);
+    onShutdown(context);
 }
 
 export function onCloseDocumentAction(context) {
-  onCloseDocument(context);
+    onCloseDocument(context);
 }
 
 export function onSelectionChanged(context) {
-  onLayerToCodeSelectionChanged(context);
-  componentOnSelectionChanged(context);
-  pageOnSelectionChanged(context);
-  iconfontOnSelectionChanged(context);
+    onLayerToCodeSelectionChanged(context);
+    componentOnSelectionChanged(context);
+    pageOnSelectionChanged(context);
+    iconfontOnSelectionChanged(context);
 }
 
 export function onExportCodeAction(context) {
-  onOpenPanel(context, ExportCode);
+    onOpenPanel(context, ExportCode);
 }
 
 export function onExportMeasureAction(context) {
-  onOpenPanel(context, ExportMeasure);
+    onOpenPanel(context, ExportMeasure);
 }
 
 export function onResetAction(context) {
-  setToken(null);
+    setToken(null);
+    setLastSelectedLanguages(undefined);
+    UI.message("Reset Success!");
 }

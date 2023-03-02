@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import {Convertor} from "./Convertor";
+import { Convertor } from "./Convertor";
 
 export default class MiniAppConvertor extends Convertor {
-  generateViewTree() {
-    let tree = "";
-    if (this.artboards[0]) {
-      tree += this.artboards[0].generateViewTree();
+    generateViewTree() {
+        let tree = "";
+        if (this.artboards[0]) {
+            tree += this.artboards[0].generateViewTree();
+        }
+        return tree;
     }
-    return tree;
-  }
 }

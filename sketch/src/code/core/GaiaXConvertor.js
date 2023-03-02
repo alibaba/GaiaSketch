@@ -14,40 +14,41 @@
  * limitations under the License.
  */
 
-import {Convertor} from "./Convertor";
+import { Convertor } from "./Convertor";
+import {logger} from "../../logger";
 
 export default class GaiaXConvertor extends Convertor {
-  generateViewTree() {
-    let tree = "";
-    if (this.artboards[0]) {
-      tree += this.artboards[0].generateViewTree();
+    generateViewTree() {
+        let tree = "";
+        if (this.artboards[0]) {
+            tree += this.artboards[0].generateViewTree();
+        }
+        let jsonTree = JSON.parse(tree);
+        if (jsonTree != undefined) {
+            jsonTree["package"] = {
+                engines: {
+                    gaiax: ">=0.0.1"
+                },
+                id: jsonTree["id"],
+                version: "0",
+                priority: "0",
+                dependencies: {}
+            };
+            jsonTree["type"] = "gaia-template";
+        }
+        return JSON.stringify(jsonTree);
     }
-    let jsonTree = JSON.parse(tree);
-    if (jsonTree != undefined) {
-      jsonTree["package"] = {
-        engines: {
-          gaiax: ">=0.0.1",
-        },
-        id: jsonTree["id"],
-        version: "0",
-        priority: "0",
-        dependencies: {},
-      };
-      jsonTree["type"] = "gaia-template";
-    }
-    return JSON.stringify(jsonTree);
-  }
 
-  generateMockData(mock) {
-    if (this.artboards[0]) {
-      this.artboards[0].generateMockData(mock);
+    generateMockData(mock) {
+        if (this.artboards[0]) {
+            this.artboards[0].generateMockData(mock);
+        }
     }
-  }
 
-  generateDatabinding() {
-    return {
-      data: {},
-      event: {},
-    };
-  }
+    generateDatabinding() {
+        return {
+            data: {},
+            event: {}
+        };
+    }
 }

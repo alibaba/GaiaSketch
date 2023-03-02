@@ -14,100 +14,100 @@
  * limitations under the License.
  */
 
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import {Separator, Stack} from "@fluentui/react";
-import {MainPage} from "./pages/main-page";
-import {Bar} from "./bar";
-import {BarType} from "./constants";
-import {Token} from "./pages/token";
+import { Separator, Stack } from "@fluentui/react";
+import { MainPage } from "./pages/main-page";
+import { Bar } from "./bar";
+import { BarType } from "./constants";
+import { Token } from "./pages/token";
 
 declare var window: any;
 
 function App() {
-  const [showTokenInput, setShowTokenInput] = useState(false);
+    const [showTokenInput, setShowTokenInput] = useState(false);
 
-  const [currentSelectedItem, setCurrentSelectedItem] = useState(
-    BarType.Unknown
-  );
+    const [currentSelectedItem, setCurrentSelectedItem] = useState(
+        BarType.Unknown
+    );
 
-  useEffect(() => {
-    window.onDidGetUserPrivateToken = function (data: any) {
-      if (!data || !data.isValid) {
-        setShowTokenInput(true);
-      } else {
-        setShowTokenInput(false);
-      }
-    };
-    window.onDidSetUserPrivateToken = function (data: any) {
-      if (data && data.success) {
-        setShowTokenInput(false);
-      } else {
-        setShowTokenInput(true);
-      }
-    };
-  });
+    useEffect(() => {
+        window.onDidGetUserPrivateToken = function(data: any) {
+            if (!data || !data.isValid) {
+                setShowTokenInput(true);
+            } else {
+                setShowTokenInput(false);
+            }
+        };
+        window.onDidSetUserPrivateToken = function(data: any) {
+            if (data && data.success) {
+                setShowTokenInput(false);
+            } else {
+                setShowTokenInput(true);
+            }
+        };
+    });
 
-  useEffect(() => {
-    window.postMessage("getUserPrivateToken");
-  }, []);
+    useEffect(() => {
+        window.postMessage("getUserPrivateToken");
+    }, []);
 
-  useEffect(() => {
-    window.onDidGetLatestBarType = function (data: any) {
-      if (data && data.barType && data.barType !== currentSelectedItem) {
-        window.postMessage("setLatestBarType", data.barType);
-        setCurrentSelectedItem(data.barType);
-      }
-    };
-    setTimeout(() => {
-      window.postMessage("getLatestBarType");
-    }, 100);
-  }, []);
+    useEffect(() => {
+        window.onDidGetLatestBarType = function(data: any) {
+            if (data && data.barType && data.barType !== currentSelectedItem) {
+                window.postMessage("setLatestBarType", data.barType);
+                setCurrentSelectedItem(data.barType);
+            }
+        };
+        setTimeout(() => {
+            window.postMessage("getLatestBarType");
+        }, 100);
+    }, []);
 
-  return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{ position: "absolute", left: 0, right: 45, top: 0, bottom: 0 }}
-      >
-        {showTokenInput &&
-        currentSelectedItem !== BarType.ExportCode &&
-        currentSelectedItem !== BarType.ExportMeasure ? (
-          <Token />
-        ) : (
-          <MainPage barType={currentSelectedItem} />
-        )}
-      </div>
-      <Stack
-        horizontal={true}
-        styles={{
-          root: {
-            position: "absolute",
-            right: 0,
-            top: 0,
-            bottom: 0,
-          },
-        }}
-      >
-        <Separator vertical styles={{ root: { padding: 0, margin: 0 } }} />
-        <Stack.Item data-app-region="drag">
-          <Bar
-            barType={currentSelectedItem}
-            onClick={(bar: BarType) => {
-              window.postMessage("setLatestBarType", bar);
-              setCurrentSelectedItem(bar);
+    return (
+        <div
+            style={{
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+                position: "relative"
             }}
-          />
-        </Stack.Item>
-      </Stack>
-    </div>
-  );
+        >
+            <div
+                style={{ position: "absolute", left: 0, right: 45, top: 0, bottom: 0 }}
+            >
+                {showTokenInput &&
+                currentSelectedItem !== BarType.ExportCode &&
+                currentSelectedItem !== BarType.ExportMeasure ? (
+                    <Token />
+                ) : (
+                    <MainPage barType={currentSelectedItem} />
+                )}
+            </div>
+            <Stack
+                horizontal={true}
+                styles={{
+                    root: {
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        bottom: 0
+                    }
+                }}
+            >
+                <Separator vertical styles={{ root: { padding: 0, margin: 0 } }} />
+                <Stack.Item data-app-region="drag">
+                    <Bar
+                        barType={currentSelectedItem}
+                        onClick={(bar: BarType) => {
+                            window.postMessage("setLatestBarType", bar);
+                            setCurrentSelectedItem(bar);
+                        }}
+                    />
+                </Stack.Item>
+            </Stack>
+        </div>
+    );
 }
 
 export default App;

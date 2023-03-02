@@ -17,74 +17,75 @@
 import * as fs from "@skpm/fs";
 import * as path from "@skpm/path";
 import * as Settings from "sketch/settings";
-import {Iconfont, RelatedServerProject} from "../../contants";
-import {getAllSketchLibraries, getPathByType} from "../server-helper";
+import { Iconfont, RelatedServerProject } from "../../contants";
+import { getAllSketchLibraries, getPathByType } from "../server-helper";
 
 export function checkAllLocalLibraries(type) {
-  return new Promise((resolve, reject) => {
-    let needUpdateLibraries = [];
-    if (type === Iconfont) {
-      let dirs = fs.readdirSync(getPathByType(Iconfont));
-      let projects = Settings.settingForKey(`${type}-libraries`);
-      if (projects && dirs) {
-        for (let i = 0; i < dirs.length; i++) {
-          let dir = path.join(getPathByType(Iconfont), dirs[i]);
-          let relatedProject =
-            Settings.settingForKey(RelatedServerProject) || {};
-          let relatedProjectInfo = relatedProject[dir];
-          if (relatedProjectInfo) {
-            if (relatedProjectInfo["libraryType"] === type) {
-              for (let j = 0; j < projects.length; j++) {
-                let project = projects[j];
-                if (project.projectID === relatedProjectInfo["projectID"]) {
-                  if (
-                    project.lastModifiedAt !==
-                    relatedProjectInfo["lastModifiedAt"]
-                  ) {
-                    needUpdateLibraries.push(project);
-                  }
-                  break;
+    return new Promise((resolve, reject) => {
+        let needUpdateLibraries = [];
+        if (type === Iconfont) {
+            let dirs = fs.readdirSync(getPathByType(Iconfont));
+            let projects = Settings.settingForKey(`${type}-libraries`);
+            if (projects && dirs) {
+                for (let i = 0; i < dirs.length; i++) {
+                    let dir = path.join(getPathByType(Iconfont), dirs[i]);
+                    let relatedProject =
+                        Settings.settingForKey(RelatedServerProject) || {};
+                    let relatedProjectInfo = relatedProject[dir];
+                    if (relatedProjectInfo) {
+                        if (relatedProjectInfo["libraryType"] === type) {
+                            for (let j = 0; j < projects.length; j++) {
+                                let project = projects[j];
+                                if (project.projectID === relatedProjectInfo["projectID"]) {
+                                    if (
+                                        project.lastModifiedAt !==
+                                        relatedProjectInfo["lastModifiedAt"]
+                                    ) {
+                                        needUpdateLibraries.push(project);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
-              }
+                resolve(needUpdateLibraries);
+            } else {
+                resolve([]);
             }
-          }
-        }
-        resolve(needUpdateLibraries);
-      } else {
-        resolve([]);
-      }
-    } else {
-      let libraries = getAllSketchLibraries();
-      let projects = Settings.settingForKey(`${type}-libraries`);
-      if (libraries && projects) {
-        for (let i = 0; libraries && i < libraries.length; i++) {
-          let library = libraries[i];
-          let libDocument = library.getDocument();
-          let relatedProject =
-            Settings.settingForKey(RelatedServerProject) || {};
-          let relatedProjectInfo =
-            relatedProject[path.dirname(decodeURIComponent(libDocument.path))];
-          if (relatedProjectInfo) {
-            for (let j = 0; j < projects.length; j++) {
-              let project = projects[j];
-              if (relatedProjectInfo["projectID"] === project.projectID) {
-                if (
-                  project.lastModifiedAt !==
-                  relatedProjectInfo["lastModifiedAt"]
-                ) {
-                  needUpdateLibraries.push(project);
+        } else {
+            let libraries = getAllSketchLibraries();
+            let projects = Settings.settingForKey(`${type}-libraries`);
+            if (libraries && projects) {
+                for (let i = 0; libraries && i < libraries.length; i++) {
+                    let library = libraries[i];
+                    let libDocument = library.getDocument();
+                    let relatedProject =
+                        Settings.settingForKey(RelatedServerProject) || {};
+                    let relatedProjectInfo =
+                        relatedProject[path.dirname(decodeURIComponent(libDocument.path))];
+                    if (relatedProjectInfo) {
+                        for (let j = 0; j < projects.length; j++) {
+                            let project = projects[j];
+                            if (relatedProjectInfo["projectID"] === project.projectID) {
+                                if (
+                                    project.lastModifiedAt !==
+                                    relatedProjectInfo["lastModifiedAt"]
+                                ) {
+                                    needUpdateLibraries.push(project);
+                                }
+                                break;
+                            }
+                        }
+                    }
                 }
-                break;
-              }
+                resolve(needUpdateLibraries);
+            } else {
+                resolve([]);
             }
-          }
         }
-        resolve(needUpdateLibraries);
-      } else {
-        resolve([]);
-      }
-    }
-  });
+    });
 }
 
-export function checkUpdate(type, projectID) {}
+export function checkUpdate(type, projectID) {
+}

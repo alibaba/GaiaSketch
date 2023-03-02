@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
+import { logger } from "../../logger";
+
 export default class GKSlice {
-  // style: any;
-  // type: string;
-  // parent: any;
-  // source: any;
-  // layers: any[];
-  // scrollDirection: any;
-  constructor(props) {
-    this.parent = props.parent;
-    this.type = "Slice";
-    this.style = {};
-    this.style.type = "Slice";
-    this.layers = [];
-    let nativeObject = props.layer;
-    this.style.left = Number(nativeObject.frame().x());
-    this.style.top = Number(nativeObject.frame().y());
-    this.style.width = Number(nativeObject.frame().width());
-    this.style.height = Number(nativeObject.frame().height());
-    // this.style.borderStyle = "dashed";
-    // this.style.borderWidth = "1px";
-    // this.style.borderColor = `rgba(204, 204, 204, 1)`;
-    this.scrollDirection = "None";
-    // this.style.borderRadius = "4px";
-  }
+    // style: any;
+    // type: string;
+    // parent: any;
+    // source: any;
+    // layers: any[];
+    // scrollDirection: any;
+    constructor(props) {
+        this.parent = props.parent;
+        this.type = "Slice";
+        this.style = {};
+        this.style.type = "Slice";
+        this.layers = [];
+        let nativeObject = props.layer;
+        this.style.left = Number(nativeObject.frame().x());
+        this.style.top = Number(nativeObject.frame().y());
+        this.style.width = Number(nativeObject.frame().width());
+        this.style.height = Number(nativeObject.frame().height());
+        // this.style.borderStyle = "dashed";
+        // this.style.borderWidth = "1px";
+        // this.style.borderColor = `rgba(204, 204, 204, 1)`;
+        this.scrollDirection = "None";
+        // this.style.borderRadius = "4px";
+        logger.log(`((((((${this.type})))))) layer.name = ${this.name},  styles = `, this.style);
+    }
 }

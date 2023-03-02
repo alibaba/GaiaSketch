@@ -18,97 +18,106 @@ import VCView from "../virtual-components/VCView";
 import VCText from "../virtual-components/VCText";
 import VCImage from "../virtual-components/VCImage";
 import VCBackgroundImage from "../virtual-components/VCBackgroundImage";
+import { logger } from "../../logger";
 
 export class Convertor {
-  // artboards: any;
-  // index: number;
-  // lang: CodeType;
-  // rootView: any;
+    // artboards: any;
+    // index: number;
+    // lang: CodeType;
+    // rootView: any;
 
-  constructor(lang) {
-    this.lang = lang;
-    this.index = 0;
-    this.artboards = [];
-  }
-
-  convert(page) {
-    if (page.layers && page.layers.length == 1) {
-      let view = this.convertLayerToView(page.layers[0]);
-      this.artboards.push(view);
-    } else {
-      let view = this.convertLayerToView(page);
-      this.artboards.push(view);
-    }
-    let schema = this.generateSchema();
-    let tree = this.generateViewTree();
-    let css = this.generateCSSTree();
-    // console.log(`schema = `, schema);
-    // console.log(`tree = `, tree);
-    // console.log(`css = `, css);
-    if (this.lang == "GaiaX") {
-      let mock = {};
-      this.generateMockData(mock);
-      // //console.log(`mock`, mock)
-      mock = JSON.stringify(mock);
-      let databinding = this.generateDatabinding();
-      return { tree, css, schema, mock, databinding };
-    } else if (this.lang == "DX") {
-      let mock = {};
-      this.generateMockData(mock);
-      mock = JSON.stringify(mock);
-      return { tree, mock };
+    constructor(lang) {
+        this.lang = lang;
+        this.index = 0;
+        this.artboards = [];
     }
 
-    return { tree, css, schema };
-  }
+    convert(page) {
+        if (page.layers && page.layers.length == 1) {
+            let view = this.convertLayerToView(page.layers[0]);
+            this.artboards.push(view);
+        } else {
+            let view = this.convertLayerToView(page);
+            this.artboards.push(view);
+        }
+        this.convertToStyles(this.artboards[0]);
+        let schema = this.generateSchema();
+        let tree = this.generateViewTree();
+        let css = this.generateCSSTree();
+        // logger.log(`schema = `, schema);
+        // logger.log(`tree = `, tree);
+        // logger.log(`css = `, css);
+        if (this.lang.startsWith("GaiaX")) {
+            let mock = {};
+            this.generateMockData(mock);
+            // //logger.log(`mock`, mock)
+            mock = JSON.stringify(mock);
+            let databinding = this.generateDatabinding();
+            return { tree, css, schema, mock, databinding };
+        }
 
-  convertLayerToView(layer) {
-    let view;
-    if (layer) {
-      // console.log(`layer.type=${layer.type}, layer.name=${layer.name}`);
-      if (layer.type == "Text") {
-        view = new VCText(layer, this.lang, this.index);
-        this.index += 1;
-      } else if (layer.type == "Image") {
-        view = new VCImage(layer, this.lang, this.index);
-        this.index += 1;
-      } else if (layer.type == "BackgroundImage") {
-        view = new VCBackgroundImage(layer, this.lang, this.index);
-        this.index += 2;
-      } else {
-        view = new VCView(layer, this.lang, this.index);
-        this.index += 1;
-      }
-      layer.layers.forEach((ele) => {
-        let vi = this.convertLayerToView(ele);
-        view.children.push(vi);
-      });
-    } else {
+        return { tree, css, schema };
     }
-    return view;
-  }
 
-  generateViewTree() {
-    throw new Error("Method not implemented.");
-  }
-
-  generateCSSTree() {
-    let tree = "";
-    if (this.artboards[0] && this.lang !== "DX") {
-      tree += this.artboards[0].generateCSSTree(0);
+    convertLayerToView(layer, depth = 1) {
+        let view;
+        if (layer) {
+            let prefix = "";
+            for (let i = 0; i < depth; i++) {
+                prefix += "  ";
+            }
+            // logger.log(`${prefix}${layer.type}, layer.name=${layer.name}`);
+            if (layer.type === "Text") {
+                view = new VCText(layer, this.lang, this.index);
+                this.index += 1;
+            } else if (layer.type === "Image") {
+                view = new VCImage(layer, this.lang, this.index);
+                this.index += 1;
+            } else if (layer.type === "BackgroundImage") {
+                view = new VCBackgroundImage(layer, this.lang, this.index);
+                this.index += 3;
+            } else {
+                view = new VCView(layer, this.lang, this.index);
+                this.index += 1;
+            }
+            layer.layers.forEach((ele) => {
+                let vi = this.convertLayerToView(ele, depth+1);
+                view.children.push(vi);
+            });
+        }
+        return view;
     }
-    return tree;
-  }
 
-  generateSchema() {
-    let schema = [];
-    if (this.artboards[0]) {
-      schema = schema.concat(this.artboards[0].generateSchema(0));
+    convertToStyles(view) {
+        if (view) {
+            view.convertToStyles(view.layer)
+        }
+        for (let i = 0; i < view?.children.length; i++) {
+            this.convertToStyles(view.children[i]) ;
+        }
     }
-    return JSON.stringify(schema);
-  }
 
-  generateMockData(mock) {}
+    generateViewTree() {
+        throw new Error("Method not implemented.");
+    }
 
-  generateDatabinding() {}
+    generateCSSTree() {
+        let tree = "";
+        if (this.artboards[0] ) {
+            tree += this.artboards[0].generateCSSTree(0);
+        }
+        return tree;
+    }
+
+    generateSchema() {
+        let schema = [];
+        if (this.artboards[0]) {
+            schema = schema.concat(this.artboards[0].generateSchema(0));
+        }
+        return JSON.stringify(schema);
+    }
+
+    generateMockData(mock) {}
+
+    generateDatabinding() {}
 }

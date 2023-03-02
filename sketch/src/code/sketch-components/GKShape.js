@@ -15,11 +15,12 @@
  */
 
 import GKLayer from "./GKLayer";
-
+import { logger } from "../../logger";
 export default class GKShape extends GKLayer {
-  constructor(props) {
-    super(props);
-    this.type = "ShapePath";
-    this.style.type = this.type;
-  }
+    constructor(props) {
+        super(props);
+        this.type = "ShapePath";
+        this.style.type = this.type;
+        logger.log(`((((((${this.type})))))) layer.name = ${this.name},  styles = `, this.style);
+    }
 }
