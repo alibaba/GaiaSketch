@@ -91,7 +91,7 @@ export function isAllImages(layer) {
                 break;
             }
         }
-    } else if (layer.type != "Image") {
+    } else if (layer.type != "Image" && layer.type != "BackgroundImage") {
         allImage = false;
     }
     return allImage;

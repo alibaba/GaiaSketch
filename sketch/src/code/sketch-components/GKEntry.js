@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import GKGroup, { isAllText } from "./GKGroup";
+import GKGroup, { containText, isAllText } from "./GKGroup";
 import GKImage from "./GKImage";
 import GKText from "./GKText";
 import GKShape from "./GKShape";
 import * as UI from "sketch/ui";
-import { mergeStyles, shouldMergeToRoot, isNumberEqual } from "../code-helper";
+import { mergeStyles, shouldMergeToRoot, isNumberEqual, intersectGroups } from "../code-helper";
 import * as stable from "stable";
 import { logger } from "../../logger";
+import { isAllImages } from "../../helper";
+import { intersect } from "../rect";
 
 export default class GKEntry {
     // layers: any;
@@ -55,6 +57,7 @@ export default class GKEntry {
         // logger.log(`layer.name=${layer.name}, layer.layers.length = ${layer.layers.length}`);
         revRemoveGroup(layer);
         optimizeLayers(layer);
+        revRemoveAllGroupSize(layer);
         delete layer.style.top;
         delete layer.style.left;
         if (backgroundColor != undefined) {
@@ -64,10 +67,22 @@ export default class GKEntry {
     }
 }
 
+export function revRemoveAllGroupSize(layer) {
+    if (layer?.layers?.length > 0 && !isAllImages(layer)) {
+        delete layer.style.width;
+        delete layer.style.height;
+        for (let i = 0; i < layer?.layers?.length; i++) {
+            let sublayer = layer.layers[i];
+            revRemoveAllGroupSize(sublayer);
+        }
+    }
+}
+
 export function revRemoveGroup(layer) {
     let shouldMergeLayer = shouldMergeToRoot(layer);
     if (shouldMergeLayer != undefined) {
         mergeStyles(layer, shouldMergeLayer);
+        layer.name = shouldMergeLayer.name;
         let remindLayers = [...layer.layers];
         for (let i = 0; i < remindLayers.length; i++) {
             if (remindLayers[i].id == shouldMergeLayer.id) {
@@ -85,6 +100,29 @@ export function revRemoveGroup(layer) {
     }
 }
 
+export function isColumnIntersect(layer1, layer2) {
+    let layer1CenterY = layer1.style.top + layer1.style.height / 2;
+    let layer2CenterY = layer2.style.top + layer2.style.height / 2;
+    return Math.abs(layer1CenterY - layer2CenterY) < (layer1.style.height + layer2.style.height) / 2;
+}
+
+export function isRowIntersect(layer1, layer2) {
+    let layer1CenterX = layer1.style.left + layer1.style.width / 2;
+    let layer2CenterX = layer2.style.left + layer2.style.width / 2;
+    return Math.abs(layer1CenterX - layer2CenterX) < (layer1.style.width + layer2.style.width) / 2;
+}
+
+export function isCornerIntersect(layer1, layer2) {
+    let layer1CenterX = layer1.style.left + layer1.style.width / 2;
+    let layer1CenterY = layer1.style.top + layer1.style.height / 2;
+    let layer2CenterX = layer2.style.left + layer2.style.width / 2;
+    let layer2CenterY = layer2.style.top + layer2.style.height / 2;
+    return (
+        Math.abs(layer1CenterX - layer1CenterY) < (layer1.style.width + layer1.style.height) / 2 &&
+        Math.abs(layer2CenterX - layer2CenterY) < (layer2.style.width + layer2.style.height) / 2
+    );
+}
+
 export function optimizeLayers(thisLayer) {
     let sortedLayers = thisLayer?.layers;
     if (sortedLayers) {
@@ -92,14 +130,34 @@ export function optimizeLayers(thisLayer) {
             let subLayer = sortedLayers[i];
             optimizeLayers(subLayer);
         }
-        if (thisLayer.name && thisLayer.name.indexOf("__GAIA_COLUMN__") == 0) {
+        if (thisLayer.name && thisLayer.name.indexOf("__GAIA_COLUMN__") === 0) {
             thisLayer.style.flexDirection = "column";
             sortSketchRowLayers(sortedLayers);
             sortSketchColumnLayers(sortedLayers);
-        } else if (thisLayer.name && thisLayer.name.indexOf("__GAIA_ROW__") == 0) {
+        } else if (thisLayer.name && thisLayer.name.indexOf("__GAIA_ROW__") === 0) {
             thisLayer.style.flexDirection = "row";
             sortSketchColumnLayers(sortedLayers);
             sortSketchRowLayers(sortedLayers);
+        } else if (
+            thisLayer.name &&
+            (thisLayer.name.indexOf("__AUTO_INTERSECT__") === 0 ||
+                (thisLayer.layers?.length === 2 && intersect(thisLayer.layers[0].style, thisLayer.layers[1].style)))
+        ) {
+            for (let i = 0; i + 1 < sortedLayers.length; i++) {
+                if (isColumnIntersect(sortedLayers[i], sortedLayers[i + 1])) {
+                    logger.info("is column intersect");
+                    thisLayer.style.flexDirection = "column";
+                    break;
+                } else if (isRowIntersect(sortedLayers[i], sortedLayers[i + 1])) {
+                    logger.info("is row intersect");
+                    thisLayer.style.flexDirection = "row";
+                    break;
+                } else {
+                    logger.info("unknown intersect");
+                    thisLayer.style.position = "absolute";
+                    break;
+                }
+            }
         } else {
             if (!canRow(sortedLayers)) {
                 if (canColumn(sortedLayers)) {
@@ -116,9 +174,12 @@ export function optimizeLayers(thisLayer) {
             for (let i = 0; i < sortedLayers.length; i++) {
                 let ll = sortedLayers[i];
                 ll.style.marginTop = ll.style.top - top;
+                if (i === sortedLayers.length - 1) {
+                    ll.style.marginBottom = thisLayer.style.height - ll.style.top - ll.style.height;
+                }
                 top = ll.style.top + ll.style.height;
                 if (
-                    (ll.type === "Image" || ll.type === "ShapePath") &&
+                    (isAllImages(ll) || ll.type === "ShapePath") &&
                     isNumberEqual(thisLayer.style.width - ll.style.left - ll.style.width, ll.style.left)
                 ) {
                     ll.style.alignSelf = "center";
@@ -129,7 +190,7 @@ export function optimizeLayers(thisLayer) {
                         let marginLeft = ll.style.left;
                         let marginRight = thisLayer.style.width - ll.style.left - ll.style.width;
                         if ((marginLeft !== 0 || marginRight !== 0) && isNumberEqual(marginLeft, marginRight)) {
-                            ll.style.textAlign = "center";
+                            ll.style.alignSelf = "center";
                         } else {
                             ll.style.marginLeft = ll.style.left;
                             ll.style.marginRight = thisLayer.style.width - ll.style.left - ll.style.width;
@@ -147,11 +208,29 @@ export function optimizeLayers(thisLayer) {
                             ll.style.alignSelf = "center";
                         }
                     }
+                    if (ll.style.marginLeft === 0) {
+                        ll.style.alignSelf = "flex-start";
+                        delete ll.style.marginLeft;
+                        delete ll.style.marginRight;
+                    } else if (ll.style.marginRight === 0) {
+                        ll.style.alignSelf = "flex-end";
+                        delete ll.style.marginLeft;
+                        delete ll.style.marginRight;
+                    }
+
                     delete ll.style.width;
                 } else {
                     ll.style.marginLeft = ll.style.left;
                     ll.style.marginRight = thisLayer.style.width - ll.style.left - ll.style.width;
-                    delete ll.style.width;
+                    if (!isAllImages(ll)) {
+                        delete ll.style.width;
+                    } else {
+                        if (ll.style.marginLeft >= 0 && ll.style.marginRight >= 0) {
+                            if (ll.style.marginLeft < ll.style.marginRight) {
+                                delete ll.style.marginRight;
+                            }
+                        }
+                    }
                 }
                 delete ll.style.top;
                 delete ll.style.left;
@@ -173,13 +252,15 @@ export function optimizeLayers(thisLayer) {
                     sortedLayers[0].style.flexGrow = 1;
                 }
                 sortedLayers[0].style.marginTop = sortedLayers[0].style.top;
+                sortedLayers[0].style.marginBottom =
+                    thisLayer.style.height - sortedLayers[0].style.top - sortedLayers[0].style.height;
                 delete sortedLayers[0].style.top;
                 delete sortedLayers[0].style.left;
             } else {
                 let textLayers = [];
                 let textGroups = [];
                 for (let i = 0; i < sortedLayers.length; i++) {
-                    if (sortedLayers[i].type === "Text") {
+                    if (isAllText(sortedLayers[i])) {
                         textLayers.push(i);
                     } else if (isAllText(sortedLayers[i])) {
                         textGroups.push(i);
@@ -190,6 +271,7 @@ export function optimizeLayers(thisLayer) {
                     let ll = sortedLayers[i];
                     ll.style.marginLeft = ll.style.left - left;
                     ll.style.marginTop = ll.style.top;
+                    ll.style.marginBottom = thisLayer.style.height - ll.style.top - ll.style.height;
                     left = ll.style.left + ll.style.width;
                     if (textLayers.includes(i)) {
                         if (textLayers.length === 1) {
@@ -199,9 +281,6 @@ export function optimizeLayers(thisLayer) {
                         }
                         delete ll.style.width;
                     } else if (textGroups.includes(i)) {
-                        if (i === 0 || i === sortedLayers.length - 1 || existAnotherTextLayer(ll, i)) {
-                            ll.style.flexGrow = 1;
-                        }
                         delete ll.style.width;
                     }
 
@@ -213,7 +292,7 @@ export function optimizeLayers(thisLayer) {
                 }
             }
         } else {
-            handleAbsoluteLayers(thisLayer, sortedLayers);
+            logger.log(`${thisLayer.name} style = ${JSON.stringify(thisLayer.style)}`);
         }
     }
 }

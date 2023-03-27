@@ -401,6 +401,20 @@ export function isEmptyLayer(layer) {
     return true;
 }
 
+export function containText(layer) {
+    if (layer.type == "Text") {
+        return true;
+    }
+    let index = 0;
+    for (; layer.layers && index < layer.layers.length; index++) {
+        const element = layer.layers[index];
+        if (containText(element)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function onlyBorderColor(layer) {
     let flag = true;
     let styles = Object.keys(layer.style);

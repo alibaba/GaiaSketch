@@ -27,21 +27,6 @@ export default class VCStyle {
         this.style = style;
         this.type = type;
 
-        if (
-            this.style.top != undefined ||
-            this.style.left != undefined ||
-            this.style.bottom != undefined ||
-            this.style.right != undefined
-        ) {
-            this.style.position = "absolute";
-        }
-        if (this.style.position && this.style.position == "absolute") {
-            delete this.style.marginLeft;
-            delete this.style.marginTop;
-            delete this.style.marginBottom;
-            delete this.style.marginRight;
-        }
-
         if (this.style.marginLeft != undefined) {
             if (isNaN(Number(this.style.marginLeft))) {
                 delete this.style.marginLeft;
@@ -85,7 +70,6 @@ export default class VCStyle {
     isGaiaX() {
         return this.lang === "GaiaX";
     }
-
 
     vueShouldAddQuotationMark(key) {
         if (
@@ -155,7 +139,7 @@ export default class VCStyle {
                     } else {
                         css += element.toString();
                         if (
-                            (this.isGaiaX() ) &&
+                            this.isGaiaX() &&
                             this.isNumber(element) &&
                             key != "lines" &&
                             key != "flexGrow" &&

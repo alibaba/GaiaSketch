@@ -20,7 +20,7 @@ import { logger } from "../../logger";
 export default class VCText extends VCView {
     constructor(layer, lang, index) {
         super(layer, lang, index);
-        // logger.log(`VCText = ${layer.name}`);
+         logger.log(`VCText = ${layer.name}`);
     }
 
     convertToStyles(layer) {

@@ -109,6 +109,7 @@ export default class GKText extends GKLayer {
         if (props.layer.style.textUnderline === "single") {
             this.style.textDecoration = "underline";
         }
+        this.style.fitContent = true;
         logger.log(`((((((${this.type})))))) layer.name = ${this.name},  styles = `, this.style);
     }
 

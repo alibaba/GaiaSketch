@@ -21,7 +21,7 @@ import { logger } from "../../logger";
 export default class VCImage extends VCView {
     constructor(layer, lang, index) {
         super(layer, lang, index);
-        // logger.log(`VCImage = ${layer.name}`);
+         logger.log(`VCImage = ${layer.name}`);
     }
 
     convertToStyles(layer) {

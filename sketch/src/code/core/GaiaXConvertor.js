@@ -23,6 +23,7 @@ export default class GaiaXConvertor extends Convertor {
         if (this.artboards[0]) {
             tree += this.artboards[0].generateViewTree();
         }
+        logger.log(tree)
         let jsonTree = JSON.parse(tree);
         if (jsonTree != undefined) {
             jsonTree["package"] = {

@@ -1,12 +1,12 @@
 {
   "name": "gaia-sketch",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "engines": {
     "sketch": ">=3.0"
   },
-  "description": "简单易用，高效协同设计和开发工具",
+  "description": "简单易用，高效协同的设计开发工具",
   "skpm": {
-    "name": "Gaia Sketch",
+    "name": "Gaia Sketch OpenSource",
     "manifest": "src/manifest.json",
     "main": "gaia-sketch.sketchplugin",
     "assets": [

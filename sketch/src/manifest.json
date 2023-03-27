@@ -2,12 +2,11 @@
     "compatibleVersion": 3,
     "bundleVersion": 1,
     "icon": "icon.png",
-    "identifier": "GaiaSketch",
-    "homepage": "https://gaia.youku.com/",
-    "appcast": "https://dl-oss-wanju.youku.com/gaia-sketch-new/.appcast.xml",
+    "identifier": "GaiaSketchOpenSource",
+    "homepage": "https://www.yuque.com/youku-gaia",
     "commands": [
         {
-            "name": "打开Gaia Sketch",
+            "name": "打开Gaia Sketch OpenSource",
             "identifier": "open-panel",
             "script": "./action-center.js",
             "shortcut": "command shift g",
@@ -48,7 +47,7 @@
         }
     ],
     "menu": {
-        "title": "Gaia Sketch",
+        "title": "Gaia Sketch OpenSource",
         "items": [
             "open-panel",
             "-",

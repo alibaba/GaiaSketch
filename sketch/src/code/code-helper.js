@@ -408,7 +408,7 @@ export function revUnGroup(rootLayerId, layer) {
 
         if (shouldMoveOut) {
             layer.sketchObject.ungroup();
-            if (parent.id !== rootLayerId) {
+            if (parent) {
                 for (let i = 0; i < parent?.layers?.length; i++) {
                     revUnGroup(rootLayerId, parent.layers[i]);
                 }
@@ -956,12 +956,12 @@ export function intersectGroups(layer) {
 export function groupColumnRow(layer, direction, flagMap) {
     if (
         layer?.layers?.length > 0 &&
-        layer.name !== `__GAIA_${direction.toUpperCase()}__` &&
         (layer.type === "Group" || layer.type === "Artboard") &&
         !flagMap[layer.id + `_${direction}`]
     ) {
-        if (layer?.layers?.length > 1) {
-            let groupsMap = [];
+        if (layer?.layers?.length > 1 && layer.name !== `__GAIA_ROW__` &&layer.name !== `__GAIA_COLUMN__`
+        ) {
+            let groupsLayers = [];
             let layers = [];
 
             for (let i = 0; i < layer.layers.length; i++) {
@@ -995,9 +995,9 @@ export function groupColumnRow(layer, direction, flagMap) {
                         if (direction === "column") {
                             let column = isColumn(tryGroups) || isTextColumn(tryGroups);
                             let otherIntersect = hasOtherIntersect(layers, tryGroups);
-                            // printCanGroupLayers(tryGroups);
-                            // logger.log(`can column= ${column}, otherIntersect = ${otherIntersect}`);
                             if (column && !otherIntersect) {
+                                // logger.log(`${layer.name} can column= ${column}, otherIntersect = ${otherIntersect}`);
+                                // printCanGroupLayers(tryGroups)
                                 canGroups.push({
                                     ...layer2,
                                 });
@@ -1005,9 +1005,9 @@ export function groupColumnRow(layer, direction, flagMap) {
                         } else if (direction === "row") {
                             let row = isRow(tryGroups) || isTextRow(tryGroups);
                             let otherIntersect = hasOtherIntersect(layers, tryGroups);
-                            // printCanGroupLayers(tryGroups);
-                            // logger.log(`can row= ${row}, otherIntersect = ${otherIntersect}`);
                             if (row && !otherIntersect) {
+                                // logger.log(`${layer.name} can row= ${row}, otherIntersect = ${otherIntersect}`);
+                                // printCanGroupLayers(tryGroups)
                                 canGroups.push({
                                     ...layer2,
                                 });
@@ -1016,79 +1016,65 @@ export function groupColumnRow(layer, direction, flagMap) {
                     }
                 }
                 if (canGroups.length > 1) {
-                    if (canGroups.length === layers.length) {
-                        groupsMap.push(canGroups);
-                        break;
-                    } else {
-                        if (!alreadyInGroups(groupsMap, canGroups)) {
-                            groupsMap.push(canGroups);
-                        }
+                    if (groupsLayers.length < canGroups.length) {
+                        logger.log(layer.name + "   " + direction)
+                        groupsLayers = canGroups;
+                        // printCanGroupLayers(groupsLayers)
                     }
                 }
             }
 
-            let groupLayersMap = [];
-            for (let i = 0; i < groupsMap.length; i++) {
-                let groupItems = groupsMap[i];
-                let needGroupLayers = [];
-                for (let j = 0; j < groupItems.length; j++) {
-                    needGroupLayers.push(layer.layers[groupItems[j].index]);
-                }
-                groupLayersMap.push(needGroupLayers);
-            }
-            for (let i = 0; i < groupsMap.length; i++) {
-                let newGroup = new sketch.Group({
-                    name: `__GAIA_${direction.toUpperCase()}__`,
-                    layers: [],
-                });
-                newGroup.parent = layer;
-                for (let k = 0; k < groupLayersMap[i].length; k++) {
-                    groupLayersMap[i][k].parent = newGroup;
-                }
-                //                let minIndex = 100000;
-                //                for (let k = 0; k < groupLayersMap[i].length; k++) {
-                //                    if (minIndex > groupLayersMap[i][k].index) {
-                //                        minIndex = groupLayersMap[i][k].index;
-                //                    }
-                //                }
-                //                newGroup.index = minIndex;
-                newGroup.adjustToFit();
-            }
 
-            if (groupsMap.length > 0) {
-                // logger.log(`groupsMap.length>0`);
-                // printLayers(layer, 0);
-                let directions = ["row", "column"];
-                directions.forEach((dir) => {
-                    // logger.log(`    --------layer.name = ${layer.name}, direction = ${dir}`);
-                    groupColumnRow(layer, dir, flagMap);
-                });
+            if (groupsLayers.length > 0) {
+                logger.log(`needGroupLayers.length>0`);
+
+                if (groupsLayers.length === layer.layers.length) {
+                    layer.name = `__GAIA_${direction.toUpperCase()}__`;
+                    flagMap[layer.id + `_${direction}`] = true;
+
+                    for (let i = 0; i < layer?.layers?.length; i++) {
+                        let directions = ["row", "column"];
+                        directions.forEach((dir) => {
+                            groupColumnRow(layer.layers[i], dir, flagMap);
+                        });
+                    }
+                } else {
+                    let needGroupLayers = [];
+                    for (let j = 0; j < groupsLayers.length; j++) {
+                        needGroupLayers.push(layer.layers[groupsLayers[j].index]);
+                    }
+
+                    let newGroup = new sketch.Group({
+                        name: `__GAIA_${direction.toUpperCase()}__`,
+                        layers: [],
+                    });
+                    newGroup.parent = layer;
+                    for (let k = 0; k < needGroupLayers.length; k++) {
+                        needGroupLayers[k].parent = newGroup;
+                    }
+                    newGroup.adjustToFit();
+                    groupColumnRow(layer, direction, flagMap);
+                }
             } else {
-                // logger.log(" skip1...");
-                // printLayers(layer, 0);
+                logger.log("1111111111111111111111111");
+
                 flagMap[layer.id + `_${direction}`] = true;
 
                 for (let i = 0; i < layer?.layers?.length; i++) {
-                    let directions = ["column", "row"];
+                    let directions = ["row", "column"];
                     directions.forEach((dir) => {
-                        // logger.log(
-                        //     `    --------parent.name = ${layer.layers[i].parent.name}, subLayer.name = ${layer.layers[i].name}, direction = ${dir}`
-                        // );
                         groupColumnRow(layer.layers[i], dir, flagMap);
                     });
                 }
             }
         } else {
-            // logger.log(" skip2...");
-            // printLayers(layer, 0);
+            logger.log("22222222222222222222222");
+
             flagMap[layer.id + `_${direction}`] = true;
 
             for (let i = 0; i < layer?.layers?.length; i++) {
                 let directions = ["row", "column"];
                 directions.forEach((dir) => {
-                    // logger.log(
-                    //     `    --------parent.name = ${layer.layers[i].parent.name}, subLayer.name = ${layer.layers[i].name}, direction = ${dir}`
-                    // );
                     groupColumnRow(layer.layers[i], dir, flagMap);
                 });
             }
@@ -1573,7 +1559,7 @@ export function exportTree(
         fs.writeFileSync(cssPath, replaceAllAssets(css, assetsMap), {
             encoding: "utf8",
         });
-    } else if (language == "GaiaX" ) {
+    } else if (language == "GaiaX") {
         let jsonPath = path.join(codeDir, "index.json");
         fs.writeFileSync(jsonPath, tree, { encoding: "utf8" });
 
@@ -1591,7 +1577,7 @@ export function exportTree(
         fs.writeFileSync(databindingPath, JSON.stringify(databinding), {
             encoding: "utf8",
         });
-    }  else {
+    } else {
         let jsPath = path.join(codeDir, `index.${suffix}`);
         fs.writeFileSync(jsPath, replaceAllAssets(tree, assetsMap), {
             encoding: "utf8",

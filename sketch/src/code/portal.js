@@ -47,7 +47,6 @@ import * as path from "@skpm/path";
 export function doExportCode(context, document, documentPath, selectedLayer, languages, destFolder, backgroundColor) {
     return new Promise(async (resolve, reject) => {
         if (document && selectedLayer) {
-
             let result = revDetachAllSymbolInstance(selectedLayer);
             let removeLayers = [];
             revRemoveAllHiddenLayersAndSlices(result, removeLayers);
@@ -55,12 +54,11 @@ export function doExportCode(context, document, documentPath, selectedLayer, lan
                 element.remove();
             });
 
-            // printLayers(result);
+            logger.log("revHandleMasks");
             revHandleMasks(result);
-            // printLayers(result);
 
+            logger.log("reGroupCanImageGroups");
             reGroupCanImageGroups(result);
-            // printLayers(result);
 
             let rootLayer = revMergeShapesToImage(result.id, result);
             if (rootLayer) {
@@ -75,19 +73,21 @@ export function doExportCode(context, document, documentPath, selectedLayer, lan
             } else {
                 revImageGroupOnlyHasImages(result);
             }
-            // printLayers(result);
 
+            logger.log("revRemoveAllHiddenLayersAndSlices");
             removeLayers = [];
             revRemoveAllHiddenLayersAndSlices(result, removeLayers);
             removeLayers.forEach((element) => {
                 element.remove();
             });
 
+            logger.log("revUnGroup");
             for (let index = 0; result.layers && index < result.layers.length; index++) {
                 let element = result.layers[index];
                 revUnGroup(result.id, element);
             }
 
+            logger.log("normalizeLayerFrame");
             if (
                 result.layers &&
                 result.layers[0].frame.width < result.frame.width &&
@@ -110,27 +110,28 @@ export function doExportCode(context, document, documentPath, selectedLayer, lan
             }
             normalizeLayerFrame(result);
 
+            logger.log("revRemoveEmptyShapePaths");
             removeLayers = [];
             revRemoveEmptyShapePaths(result, removeLayers);
             removeLayers.forEach((element) => {
                 element.remove();
             });
 
+            logger.log("groupCanContainLayers");
             groupCanContainLayers(result, result.frame);
-            // printLayers(result);
 
             // // logger.log(`start intersectGroups`);
+            logger.log("intersectGroups");
             intersectGroups(result);
-            // printLayers(result);
 
+            logger.log("groupCanGroupInIntersects");
             groupCanGroupInIntersects(result);
-            // printLayers(result);
 
             let directions = ["column", "row"];
             let flagMap = {};
             directions.forEach((direction) => {
+                logger.log("groupColumnRow" + " - " + direction);
                 groupColumnRow(result, direction, flagMap);
-                // printLayers(result);
                 flagMap = {};
             });
 
@@ -139,6 +140,7 @@ export function doExportCode(context, document, documentPath, selectedLayer, lan
 
             for (let i = 0; i < languages.length; i++) {
                 let lang = languages[i];
+                logger.log(languages);
                 const { name, codes } = await doConvert(context, document, result, lang, destFolder, backgroundColor);
                 let assetsMap = {};
                 for (let index = 0; index < codes.length; index++) {
@@ -198,8 +200,6 @@ function revImageGroupOnlyHasImages(layer) {
     }
 }
 
-
-
 function doConvert(context, document, selectedLayer, lang, dir, backgroundColor) {
     return new Promise(async (resolve, reject) => {
         let page;
@@ -234,7 +234,6 @@ function doConvert(context, document, selectedLayer, lang, dir, backgroundColor)
                         ext: "js",
                     });
                 }
-
 
                 if (lang == "Vue") {
                     const vueWebConvert = new VueConvertor(lang);

@@ -16,16 +16,17 @@
 
 import VCView from "./VCView";
 import VCStyle from "./VCStyle";
+import { logger } from "../../logger";
 
 export default class VCBackgroundImage extends VCView {
     constructor(layer, lang, index) {
         super(layer, lang, index);
-        // logger.log(`VCBackgroundImage = ${layer.name}`);
+        logger.log(`VCBackgroundImage = ${layer.name}, layer.style = ${JSON.stringify(layer.style)}`);
     }
 
     convertToStyles(layer) {
         if (layer !== undefined && layer.style !== undefined) {
-            let assignedStyle = {...layer.style};
+            let assignedStyle = { ...layer.style };
 
             let style1 = {
                 key: this.getUniqueClassName(),
@@ -74,11 +75,16 @@ export default class VCBackgroundImage extends VCView {
 
             this.styles.push({
                 key: this.getUniqueClassName(this.index + 2, "Group"),
-                value: new VCStyle({
-                    width: "100%",
-                    height: "100%",
-                    position: "absolute"
-                }, this.lang, this.type),
+                value: new VCStyle(
+                    {
+                        width: "100%",
+                        height: "100%",
+                        position: "absolute",
+                        flexDirection: `${layer.name === '__GAIA_COLUMN__' ? "column" : "row"}`
+                    },
+                    this.lang,
+                    this.type
+                ),
             });
         }
     }
@@ -126,10 +132,7 @@ export default class VCBackgroundImage extends VCView {
             )}", "layers": [{"type":"image", "id" : "${this.getUniqueClassName(
                 this.index + 1,
                 "Image"
-            )}"}, {"type":"view", "id": "${this.getUniqueClassName(
-                this.index + 2,
-                "Group"
-            )}"`;
+            )}"}, {"type":"view", "id": "${this.getUniqueClassName(this.index + 2, "Group")}"`;
 
             // logger.log(`layer left = `, left);
             return left;

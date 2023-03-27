@@ -33,7 +33,7 @@ export default class VCView {
     // parentFrameLayout: boolean;
 
     constructor(layer, lang, index = 0) {
-        // logger.log(`VCView = ${layer.name}`);
+         logger.log(`VCView = ${layer.name}`);
         this.layer = layer;
         this.lang = lang;
         this.children = [];
