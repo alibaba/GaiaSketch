@@ -149,7 +149,8 @@ function findShadowLayers(layer, shadowMap) {
         for (let i = 0; i < shadows.length; i++) {
             let shadow = shadows[i];
             if (shadow.enabled) {
-                let nativeRect = layer.sketchObject.absoluteInfluenceRect();
+                // https://sketchplugins.com/d/2501-absoluteinfluencerect-removed-in-sketch-96x
+                let nativeRect = MSLayerAbsoluteInfluenceRectShim(layer.sketchObject);
                 let influenceRect = new sketch.Rectangle(
                     nativeRect.origin.x,
                     nativeRect.origin.y,
@@ -163,6 +164,21 @@ function findShadowLayers(layer, shadowMap) {
     for (let i = 0; i < layer?.layers?.length; i++) {
         findShadowLayers(layer.layers[i], shadowMap);
     }
+}
+
+export function MSLayerAbsoluteInfluenceRectShim(layer) {
+    const document = layer.documentData();
+    const immutable = layer.immutableModelObject();
+
+    if (layer.respondsToSelector_(NSSelectorFromString("absoluteInfluenceRect"))) {
+        // Sketch < 96
+        return layer.absoluteInfluenceRect();
+    }
+
+    // Sketch >= 96
+    // TODO: guard API availability for influenceRectForBoundsInDocument()
+    const relativeInfluenceRect = immutable.influenceRectForBoundsInDocument(document);
+    return layer.convertRect_toLayer_(relativeInfluenceRect, /* to absolute/page coordinates */null)
 }
 
 export function adjustToFitParent(layer) {
